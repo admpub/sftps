@@ -16,7 +16,6 @@ import (
 	"time"
 )
 
-
 type Ftp struct {
 	rawConn  net.Conn
 	tlsConn  *tls.Conn
@@ -74,8 +73,6 @@ func (this *Ftp) connect() (res *FtpResponse, err error) {
 		code:    code,
 		msg:     msg,
 	}
-
-
 
 	this.State = ONLINE
 	return
@@ -418,7 +415,7 @@ func (this *Ftp) list(p string) (res []*FtpResponse, list string, err error) {
 	res = []*FtpResponse{}
 
 	if !this.params.keepAlive {
-		defer func () {
+		defer func() {
 			var r *FtpResponse
 			if r, err = this.quit(); err != nil {
 				return
@@ -528,7 +525,6 @@ func (this *Ftp) upload(local string, remote string) (res []*FtpResponse, len in
 	res = append(res, r)
 	var cmd = fmt.Sprintf("STOR %s", remote)
 	if r, err = this.Command(cmd, 150); err != nil {
-		spew.Dump(err)
 		return
 	}
 	res = append(res, r)
@@ -557,7 +553,7 @@ func (this *Ftp) delete(p string) (res *FtpResponse, err error) {
 
 func (this *Ftp) rename(old, new string) (res []*FtpResponse, err error) {
 	r := &FtpResponse{}
-	if r, err = this.Command(fmt.Sprintf("RNFR %s", old), 350); err !=  nil {
+	if r, err = this.Command(fmt.Sprintf("RNFR %s", old), 350); err != nil {
 		return
 	}
 	res = append(res, r)
@@ -567,9 +563,6 @@ func (this *Ftp) rename(old, new string) (res []*FtpResponse, err error) {
 	res = append(res, r)
 	return
 }
-
-
-
 
 func (this *Ftp) fileTransfer(direction int, uri string, itf interface{}) (res *FtpResponse, len int64, err error) {
 
@@ -642,5 +635,3 @@ func (this *Ftp) fileTransfer(direction int, uri string, itf interface{}) (res *
 	}
 	return
 }
-
-
