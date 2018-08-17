@@ -7,7 +7,7 @@ sftps is an Package of the Golang for the FTP, FTPS and SFTP Clients.
 ###1 Import the package "github.com/kooohei/sftps"
 ```golang
 import (
-  "github.com/kooohei/sftps"
+  "github.com/admpub/sftps"
 )
 ```
 
