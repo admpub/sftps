@@ -30,9 +30,20 @@ type Entity struct {
 	Size    int
 	LastMod string
 	Name    string
+	LinkTo  string
 }
 
-func stringToEntities (raw string) (ents []*Entity, err error) {
+func (e *Entity) RealPath() string {
+	if e.Perms == nil {
+		return e.Name
+	}
+	if e.Perms.Type == `Symlink` {
+		return e.LinkTo
+	}
+	return e.Name
+}
+
+func stringToEntities(raw string) (ents []*Entity, err error) {
 	lines := strings.Split(raw, "\r\n")
 
 	if len(lines) == 1 {
@@ -40,16 +51,24 @@ func stringToEntities (raw string) (ents []*Entity, err error) {
 	}
 
 	for _, line := range lines {
-		if line != "" {
-			ent := new(Entity)
-			var er error
-			ent.Perms, ent.Links, ent.Owner, ent.Group, ent.Size, ent.LastMod, ent.Name, er = decomposition(line)
-			if er != nil {
-				err = er
-				return
-			}
-			ents = append(ents, ent)
+		if len(line) == 0 {
+			continue
 		}
+		ent := new(Entity)
+		var er error
+		ent.Perms, ent.Links, ent.Owner, ent.Group, ent.Size, ent.LastMod, ent.Name, er = decomposition(line)
+		if er != nil {
+			err = er
+			return
+		}
+		if ent.Perms != nil && ent.Perms.Type == `Symlink` {
+			info := strings.SplitN(ent.Name, ` -> `, 2)
+			if len(info) == 2 {
+				ent.Name = info[0]
+				ent.LinkTo = info[1]
+			}
+		}
+		ents = append(ents, ent)
 	}
 	return
 }

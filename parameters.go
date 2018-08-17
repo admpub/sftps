@@ -1,6 +1,5 @@
 package sftps
 
-
 type ftpParameters struct {
 	host        string
 	port        int
@@ -33,21 +32,22 @@ func NewSftpParameters(host string, port int, user string, pass string, keepAliv
 	if host == "" || user == "" {
 		panic("Invalid parameter were bound.")
 	}
-	param := &sftpParameters {
-		host: host,
-		port: port,
-		user: user,
-		pass: pass,
-		useKey:   false,
-		privateKey:  "",
+	param := &sftpParameters{
+		host:          host,
+		port:          port,
+		user:          user,
+		pass:          pass,
+		useKey:        false,
+		privateKey:    "",
 		usePassphrase: false,
-		passphrase:  "",
-		keepAlive:  keepAlive,
+		passphrase:    "",
+		keepAlive:     keepAlive,
 	}
 	return param
 }
 
 func (param *sftpParameters) Keys(privateKey string, usePassphrase bool, passphrase string) {
+	param.privateKey = privateKey
 	param.useKey = true
 	if usePassphrase {
 		if passphrase == "" {
@@ -57,7 +57,6 @@ func (param *sftpParameters) Keys(privateKey string, usePassphrase bool, passphr
 		param.passphrase = passphrase
 	}
 }
-
 
 func NewFtpParameters(host string, port int, user string, pass string, keepalive bool) *ftpParameters {
 	if host == "" || user == "" || pass == "" {
