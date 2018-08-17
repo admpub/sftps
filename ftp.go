@@ -26,8 +26,6 @@ type Ftp struct {
 }
 
 func newFtp(p *ftpParameters) (ftp *Ftp) {
-	//spew.Dump(p)
-
 	ftp = new(Ftp)
 	ftp.params = p
 	ftp.State = OFFLINE
@@ -491,7 +489,6 @@ func (this *Ftp) download(local string, remote string) (res []*FtpResponse, len 
 	res = append(res, r)
 	var cmd = fmt.Sprintf("RETR %s", remote)
 	if r, err = this.Command(cmd, 150); err != nil {
-		spew.Dump(err)
 		return
 	}
 	res = append(res, r)
@@ -618,7 +615,6 @@ func (this *Ftp) fileTransfer(direction int, uri string, itf interface{}) (res *
 		}
 		r = rw
 	} else if direction == UPLOAD {
-		spew.Dump("UPLOAD")
 		if r, err = os.Open(uri); err != nil {
 			return
 		}
