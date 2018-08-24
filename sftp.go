@@ -1,9 +1,6 @@
 package sftps
 
 import (
-	"crypto/x509"
-	"encoding/base64"
-	"encoding/pem"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -29,7 +26,6 @@ func newSftp(p *sftpParameters) (sftp *SecureFtp) {
 
 func (this *SecureFtp) connect() (err error) {
 	var pemBytes []byte
-	var pemBlock []byte
 	var signer ssh.Signer
 	var ip []net.IP
 
@@ -47,24 +43,17 @@ func (this *SecureFtp) connect() (err error) {
 
 		if this.params.usePassphrase {
 			passphraseBytes := []byte(this.params.passphrase)
-			block, _ := pem.Decode(pemBytes)
-			if pemBlock, err = x509.DecryptPEMBlock(block, passphraseBytes); err != nil {
-				return
-			}
-			keyString := base64.StdEncoding.EncodeToString(pemBlock)
-			key := fmt.Sprintf("-----BEGIN %s-----\n%s\n-----END %s-----\n", block.Type, keyString, block.Type)
-			if signer, err = ssh.ParsePrivateKey([]byte(key)); err != nil {
-				return
-			}
+			signer, err = ssh.ParsePrivateKeyWithPassphrase(pemBytes, passphraseBytes)
 		} else {
-			if signer, err = ssh.ParsePrivateKey(pemBytes); err != nil {
-				return
-			}
+			signer, err = ssh.ParsePrivateKey(pemBytes)
+		}
+		if err != nil {
+			return
 		}
 		config.Auth = append(config.Auth, ssh.PublicKeys(signer))
 	}
 
-	if this.params.pass != "" {
+	if len(this.params.pass) > 0 {
 		config.Auth = append(config.Auth, ssh.Password(this.params.pass))
 	}
 

@@ -106,15 +106,15 @@ func (this *Ftp) getTLSConfig() (conf *tls.Config, err error) {
 		tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
 	}
 
-	if this.params.cert != "" && this.params.key != "" {
+	if len(this.params.cert) > 0 && len(this.params.key) > 0 {
 		if certPair, err = tls.LoadX509KeyPair(this.params.cert, this.params.key); err != nil {
 			return
 		}
 
 		certPool = x509.NewCertPool()
 
-		if this.params.rootCA != "" {
-			rootCA := "./cert/rcaPem.pem"
+		if len(this.params.rootCA) > 0 {
+			rootCA := this.params.rootCA //"./cert/rcaPem.pem"
 			if rcaPem, err = ioutil.ReadFile(rootCA); err != nil {
 				err = fmt.Errorf(`%v: %v`, rootCA, err)
 				return
@@ -229,7 +229,7 @@ func (this *Ftp) getLocalIP() (ip string, err error) {
 			}
 		}
 	}
-	if ip == "" {
+	if len(ip) == 0 {
 		err = errors.New("Could not get the Local Address.")
 		return
 	}
@@ -288,7 +288,7 @@ func (this *Ftp) getSplitPorts() (port1 int, port2 int, err error) {
 }
 
 func (this *Ftp) port() (res *FtpResponse, listener net.Listener, err error) {
-	var localIP string = ""
+	var localIP string
 	if localIP, err = this.getLocalIP(); err != nil {
 		return
 	}
@@ -322,8 +322,8 @@ func (this *Ftp) pasv() (res *FtpResponse, dataConn net.Conn, err error) {
 	matches := reg.FindAllStringSubmatch(res.msg, -1)
 	tmp := matches[0]
 
-	var hex1 string = ""
-	var hex2 string = ""
+	var hex1 string
+	var hex2 string
 	if hex1, err = this.ds2h(tmp[5]); err != nil {
 		return
 	}
