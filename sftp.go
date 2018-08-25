@@ -26,8 +26,6 @@ func newSftp(p *sftpParameters) (sftp *SecureFtp) {
 }
 
 func (this *SecureFtp) connect() (err error) {
-	var pemBytes []byte
-	var signer ssh.Signer
 	var ip []net.IP
 
 	config := &ssh.ClientConfig{
@@ -38,6 +36,8 @@ func (this *SecureFtp) connect() (err error) {
 	}
 
 	if this.params.useKey {
+		var pemBytes []byte
+		var signer ssh.Signer
 		if strings.HasPrefix(this.params.privateKey, FILEPROTOCOL) {
 			privateKey := strings.TrimPrefix(this.params.privateKey, FILEPROTOCOL)
 			pemBytes, err = ioutil.ReadFile(privateKey)
