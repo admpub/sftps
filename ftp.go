@@ -464,7 +464,7 @@ func (this *Ftp) list(p string) (res []*FtpResponse, list string, err error) {
 	return
 }
 
-func (this *Ftp) download(local string, remote string) (res []*FtpResponse, len int64, err error) {
+func (this *Ftp) download(local interface{}, remote string) (res []*FtpResponse, len int64, err error) {
 	res = []*FtpResponse{}
 	if !this.params.keepAlive {
 		defer func() {
@@ -503,7 +503,7 @@ func (this *Ftp) download(local string, remote string) (res []*FtpResponse, len 
 	return
 }
 
-func (this *Ftp) upload(local string, remote string) (res []*FtpResponse, len int64, err error) {
+func (this *Ftp) upload(local interface{}, remote string) (res []*FtpResponse, len int64, err error) {
 	res = []*FtpResponse{}
 	if !this.params.keepAlive {
 		defer func() {
@@ -570,7 +570,7 @@ func (this *Ftp) rename(old, new string) (res []*FtpResponse, err error) {
 	return
 }
 
-func (this *Ftp) fileTransfer(direction int, uri string, itf interface{}) (res *FtpResponse, len int64, err error) {
+func (this *Ftp) fileTransfer(direction int, uri interface{}, itf interface{}) (res *FtpResponse, len int64, err error) {
 
 	var dataConn net.Conn
 
@@ -609,13 +609,19 @@ func (this *Ftp) fileTransfer(direction int, uri string, itf interface{}) (res *
 	}
 
 	if direction == DOWNLOAD {
-		if w, err = os.Create(uri); err != nil {
-			return
+		var ok bool
+		if w, ok = uri.(io.WriteCloser); !ok {
+			if w, err = os.Create(uri.(string)); err != nil {
+				return
+			}
 		}
 		r = rw
 	} else if direction == UPLOAD {
-		if r, err = os.Open(uri); err != nil {
-			return
+		var ok bool
+		if r, ok = uri.(io.ReadCloser); !ok {
+			if r, err = os.Open(uri.(string)); err != nil {
+				return
+			}
 		}
 		w = rw
 	} else {

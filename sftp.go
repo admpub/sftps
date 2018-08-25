@@ -74,7 +74,7 @@ func (this *SecureFtp) connect() (err error) {
 	}
 	if this.sftpClient, err = sftp.NewClient(this.sshClient); err != nil {
 		if e := this.sshClient.Close(); e != nil {
-			panic(e)
+			return e
 		}
 	}
 	return
@@ -84,7 +84,7 @@ func (this *SecureFtp) list(p string) (list string, err error) {
 	var session *ssh.Session
 	if session, err = this.sshClient.NewSession(); err != nil {
 		if e := this.quit(); e != nil {
-			panic(e)
+			return ``, e
 		}
 	}
 	defer session.Close()
@@ -93,52 +93,60 @@ func (this *SecureFtp) list(p string) (list string, err error) {
 	var bytes []byte
 	if bytes, err = session.Output(cmd); err != nil {
 		if e := this.quit(); e != nil {
-			panic(e)
+			return ``, e
 		}
 	}
 	list = string(bytes)
 	return
 }
 
-func (this *SecureFtp) download(local string, remote string) (len int64, err error) {
-	var r io.Reader
-	var w io.Writer
-
+func (this *SecureFtp) download(local interface{}, remote string) (len int64, err error) {
+	var w io.WriteCloser
+	var r io.ReadCloser
+	var ok bool
+	if w, ok = local.(io.WriteCloser); !ok {
+		if w, err = os.Create(local.(string)); err != nil {
+			if e := this.quit(); e != nil {
+				return 0, e
+			}
+		}
+	}
+	defer w.Close()
 	if r, err = this.sftpClient.Open(remote); err != nil {
 		if e := this.quit(); e != nil {
-			panic(e)
+			return 0, e
 		}
 	}
-	if w, err = os.Create(local); err != nil {
-		if e := this.quit(); e != nil {
-			panic(e)
-		}
-	}
+	defer r.Close()
 	if len, err = io.Copy(w, r); err != nil {
 		if e := this.quit(); e != nil {
-			panic(e)
+			return 0, e
 		}
 	}
 	return
 }
 
-func (this *SecureFtp) upload(local string, remote string) (len int64, err error) {
-	var r io.Reader
-	var w io.Writer
-
-	if r, err = os.Open(local); err != nil {
-		if e := this.quit(); e != nil {
-			panic(e)
+func (this *SecureFtp) upload(local interface{}, remote string) (len int64, err error) {
+	var r io.ReadCloser
+	var ok bool
+	if r, ok = local.(io.ReadCloser); !ok {
+		if r, err = os.Open(local.(string)); err != nil {
+			if e := this.quit(); e != nil {
+				return 0, e
+			}
 		}
 	}
+	defer r.Close()
+	var w io.WriteCloser
 	if w, err = this.sftpClient.Create(remote); err != nil {
 		if e := this.quit(); e != nil {
-			panic(e)
+			return 0, e
 		}
 	}
+	defer w.Close()
 	if len, err = io.Copy(w, r); err != nil {
 		if e := this.quit(); e != nil {
-			panic(e)
+			return 0, e
 		}
 	}
 

@@ -258,7 +258,7 @@ func (this *Sftps) Rename(old string, new string) (res []*FtpResponse, err error
 }
 
 //Upload parameter's explain. local is the local path for the file, whether remote.
-func (this *Sftps) Upload(local string, remote string) (res []*FtpResponse, len int64, err error) {
+func (this *Sftps) Upload(local interface{}, remote string) (res []*FtpResponse, len int64, err error) {
 	if this.state == OFFLINE {
 		err = errors.New("Connection is not established")
 		return
@@ -297,7 +297,7 @@ func (this *Sftps) Upload(local string, remote string) (res []*FtpResponse, len 
 	return
 }
 
-func (this *Sftps) Download(local string, remote string) (res []*FtpResponse, len int64, err error) {
+func (this *Sftps) Download(local interface{}, remote string) (res []*FtpResponse, len int64, err error) {
 	if this.state == OFFLINE {
 		err = errors.New("Connection is not established")
 		return
