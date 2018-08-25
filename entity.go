@@ -43,6 +43,48 @@ func (e *Entity) RealPath() string {
 	return e.Name
 }
 
+func (e *Entity) IsDir() bool {
+	if e.Perms == nil {
+		return false
+	}
+	return e.Perms.Type == `Directory`
+}
+
+func (e *Entity) IsRegular() bool {
+	if e.Perms == nil {
+		return false
+	}
+	return e.Perms.Type == `Regular`
+}
+
+func (e *Entity) IsSymlink() bool {
+	if e.Perms == nil {
+		return false
+	}
+	return e.Perms.Type == `Symlink`
+}
+
+func (e *Entity) IsSocket() bool {
+	if e.Perms == nil {
+		return false
+	}
+	return e.Perms.Type == `Socket`
+}
+
+func (e *Entity) IsCharacterDevice() bool {
+	if e.Perms == nil {
+		return false
+	}
+	return e.Perms.Type == `CharacterDevice`
+}
+
+func (e *Entity) IsBlockDevice() bool {
+	if e.Perms == nil {
+		return false
+	}
+	return e.Perms.Type == `BlockDevice`
+}
+
 func stringToEntities(raw string) (ents []*Entity, err error) {
 	lines := strings.Split(raw, "\r\n")
 
