@@ -27,7 +27,7 @@ param := sftps.NewFtpParameters("[host]", [port], "[username]", "[password]", [b
   SFTP
 */
 param := sftps.NewSftpParameters("[host]", [port], "[username]", "[password]", [bool for the Connection Keepalive])
-// param.Keys("[path to the private key]", [bool for the use passphrase to the Key], "[passphrase]")
+// param.Keys("[private key content]", [bool for the use passphrase to the Key], "[passphrase]")
 ```
 
 ###3 Create the Receiver

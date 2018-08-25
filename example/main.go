@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
 
@@ -52,7 +54,11 @@ func main() {
 	})
 	paramSFTP := sftps.NewSftpParameters(sshHost, sshPort, sshUser, sshPasswd, false)
 	if len(sshKeyFile) > 0 {
-		paramSFTP.Keys(sshKeyFile, sshUsePassphrase, sshPassphrase)
+		pemBytes, err := ioutil.ReadFile(sshKeyFile)
+		if err != nil {
+			panic(fmt.Errorf(`Private Key File "%v": %v`, sshKeyFile, err))
+		}
+		paramSFTP.Keys(string(pemBytes), sshUsePassphrase, sshPassphrase)
 	}
 	sftp, err := sftps.New(sftps.SFTP, paramSFTP)
 	if err != nil {

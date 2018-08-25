@@ -3,7 +3,6 @@ package sftps
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"os"
 
@@ -37,10 +36,7 @@ func (this *SecureFtp) connect() (err error) {
 	}
 
 	if this.params.useKey {
-		if pemBytes, err = ioutil.ReadFile(this.params.privateKey); err != nil {
-			return fmt.Errorf(`Private Key File "%v": %v`, this.params.privateKey, err)
-		}
-
+		pemBytes = []byte(this.params.privateKey)
 		if this.params.usePassphrase {
 			passphraseBytes := []byte(this.params.passphrase)
 			signer, err = ssh.ParsePrivateKeyWithPassphrase(pemBytes, passphraseBytes)
