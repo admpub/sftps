@@ -114,10 +114,14 @@ func (this *Ftp) getTLSConfig() (conf *tls.Config, err error) {
 		certPool = x509.NewCertPool()
 
 		if len(this.params.rootCA) > 0 {
-			rootCA := this.params.rootCA //"./cert/rcaPem.pem"
-			if rcaPem, err = ioutil.ReadFile(rootCA); err != nil {
-				err = fmt.Errorf(`%v: %v`, rootCA, err)
-				return
+			if strings.HasPrefix(this.params.rootCA, FILEPROTOCOL) {
+				rootCA := strings.TrimPrefix(this.params.rootCA, FILEPROTOCOL)
+				if rcaPem, err = ioutil.ReadFile(rootCA); err != nil {
+					err = fmt.Errorf(`%v: %v`, rootCA, err)
+					return
+				}
+			} else {
+				rcaPem = []byte(this.params.rootCA)
 			}
 
 			if this.params.alwaysTrust {

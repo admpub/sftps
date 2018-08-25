@@ -24,7 +24,9 @@ const (
 
 const (
 	// When handshake to the server
-	TIMEOUT string = "10s"
+	TIMEOUT = "10s"
 	// The Keep Alive Period for an active network connection.
-	KEEPALIVE string = "30s"
+	KEEPALIVE = "30s"
+
+	FILEPROTOCOL = "file:///"
 )

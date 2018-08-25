@@ -3,8 +3,10 @@ package sftps
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/pkg/sftp"
 	"golang.org/x/crypto/ssh"
@@ -36,7 +38,15 @@ func (this *SecureFtp) connect() (err error) {
 	}
 
 	if this.params.useKey {
-		pemBytes = []byte(this.params.privateKey)
+		if strings.HasPrefix(this.params.privateKey, FILEPROTOCOL) {
+			privateKey := strings.TrimPrefix(this.params.privateKey, FILEPROTOCOL)
+			pemBytes, err = ioutil.ReadFile(privateKey)
+			if err != nil {
+				return fmt.Errorf(`Private Key File "%v": %v`, privateKey, err)
+			}
+		} else {
+			pemBytes = []byte(this.params.privateKey)
+		}
 		if this.params.usePassphrase {
 			passphraseBytes := []byte(this.params.passphrase)
 			signer, err = ssh.ParsePrivateKeyWithPassphrase(pemBytes, passphraseBytes)
